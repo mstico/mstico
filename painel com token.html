@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Criar Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #fff;
+        }
+        #container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        #resultado {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #111;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+        }
+        #painelDados {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #111;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            color: #fff;
+        }
+        #painelDados p {
+            margin: 5px 0;
+        }
+        .button-container {
+            text-align: center;
+        }
+        .button-container button {
+            display: block;
+            margin: 5px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Criar Token</h1>
+
+        <div id="userType">
+            <label for="userTypeSelector">Tipo de Usuário:</label>
+            <select id="userTypeSelector">
+                <option value="normal">Usuário Normal</option>
+                <option value="adm">Administrador</option>
+            </select>
+        </div>
+
+        <div id="tokenForm">
+            <label for="username">Nome de Usuário:</label>
+            <input type="text" id="username" />
+            
+            <label for="password">Senha:</label>
+            <input type="password" id="password" />
+            
+            <label for="credits">Créditos:</label>
+            <input type="number" id="credits" />
+        </div>
+
+        <div id="userForm">
+            <label for="admUsername">Usuário:</label>
+            <input type="text" id="admUsername" />
+            
+            <label for="admPassword">Senha:</label>
+            <input type="password" id="admPassword" />
+        </div>
+
+        <button id="createButton" onclick="criarToken()">Criar Token</button>
+
+        <div id="resultado">
+            <!-- Resultado do token criado... -->
+            <div class="button-container">
+                <button id="editButton" onclick="editarDados()">Editar</button>
+                <button id="showButton" onclick="exibirDados()">Exibir Informações</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="painelDados" style="display:none;">
+        <!-- Dados criados ficarão aqui... -->
+        <h2>Editar Dados</h2>
+        <div id="editForm">
+            <label for="editUsername">Nome de Usuário:</label>
+            <input type="text" id="editUsername" />
+            
+            <label for="editPassword">Senha:</label>
+            <input type="password" id="editPassword" />
+            
+            <label for="editCredits">Créditos:</label>
+            <input type="number" id="editCredits" />
+        </div>
+        <button id="saveButton" onclick="salvarDados()">Salvar</button>
+    </div>
+
+    <script>
+        const userTypeSelector = document.getElementById("userTypeSelector");
+        const tokenForm = document.getElementById("tokenForm");
+        const userForm = document.getElementById("userForm");
+        const resultado = document.getElementById("resultado");
+        const painelDados = document.getElementById("painelDados");
+
+        userTypeSelector.addEventListener("change", function() {
+            if (this.value === "normal") {
+                tokenForm.style.display = "block";
+                userForm.style.display = "none";
+            } else if (this.value === "adm") {
+                tokenForm.style.display = "none";
+                userForm.style.display = "block";
+            }
+            resultado.style.display = "none";
+        });
+
+        function criarToken() {
+            const userType = userTypeSelector.value;
+            const username = userType === "normal" ? document.getElementById("username").value : document.getElementById("admUsername").value;
+            const password = userType === "normal" ? document.getElementById("password").value : document.getElementById("admPassword").value;
+            const token = generateToken();
+            const credits = userType === "normal" ? document.getElementById("credits").value : "∞";
+
+            const dados = {
+                userType,
+                username,
+                password,
+                credits,
+                token
+            };
+
+            localStorage.setItem("dadosCriados", JSON.stringify(dados));
+
+            resultado.style.display = "block";
+            document.getElementById("editButton").style.display = "block";
+            document.getElementById("showButton").style.display = "block";
+
+            document.getElementById("resultUsername").textContent = `${username} (Senha: ${password})`;
+            document.getElementById("resultCredits").textContent = credits;
+            document.getElementById("resultToken").textContent = token;
+
+            tokenForm.style.display = "none";
+            userForm.style.display = "none";
+        }
+
+        function generateToken() {
+            // Geração de token automática...
+            return Math.random().toString(36).substr(2, 10);
+        }
+
+        function editarDados() {
+            const dados = JSON.parse(localStorage.getItem("dadosCriados"));
+            userTypeSelector.value = dados.userType;
+            document.getElementById("editUsername").value = dados.username;
+            document.getElementById("editPassword").value = dados.password;
+            if (dados.userType === "normal") {
+                document.getElementById("editCredits").value = dados.credits;
+            }
+            painelDados.style.display = "block";
+        }
+
+        function salvarDados() {
+            const dados = JSON.parse(localStorage.getItem("dadosCriados"));
+            const editedUsername = document.getElementById("editUsername").value;
+            const editedPassword = document.getElementById("editPassword").value;
+            const editedCredits = document.getElementById("editCredits").value;
+
+            dados.username = editedUsername;
+            dados.password = editedPassword;
+            dados.credits = editedCredits;
+            localStorage.setItem("dadosCriados", JSON.stringify(dados));
+
+            painelDados.style.display = "none";
+            exibirDados();
+        }
+
+        function exibirDados() {
+            const dados = JSON.parse(localStorage.getItem("dadosCriados"));
+            painelDados.innerHTML = `
+                <h2>Informações Salvas</h2>
+                <p><strong>Tipo de Usuário:</strong> ${dados.userType}</p>
+                <p><strong>Nome de Usuário:</strong> ${dados.username}</p>
+                <p><strong>Senha:</strong> ${dados.password}</p>
+                <p><strong>Créditos:</strong> ${dados.credits}</p>
+                <p><strong>Token:</strong> ${dados.token}</p>
+            `;
+            painelDados.style.display = "block";
+        }
+    </script>
+</body>
+</html>
